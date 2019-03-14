@@ -42,12 +42,27 @@ fi
 prompt_yn_question "Do you want to install CUDA 9.0? [y/n]"
 ret=$?
 if [ "$ret" -eq 1 ]; then
-    mkdir -p Cuda9.0
-    cd Cuda9.0 && wget https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.0.176_384.81_linux-run \
-    https://developer.nvidia.com/compute/cuda/9.0/Prod/patches/1/cuda_9.0.176.1_linux-run \
-    https://developer.nvidia.com/compute/cuda/9.0/Prod/patches/2/cuda_9.0.176.2_linux-run \
-    https://developer.nvidia.com/compute/cuda/9.0/Prod/patches/3/cuda_9.0.176.3_linux-run \
-    https://developer.nvidia.com/compute/cuda/9.0/Prod/patches/4/cuda_9.0.176.4_linux-run
+
+    prompt_yn_question "Do you want to DOWNLOAD CUDA 9.0? [y/n]"
+    ret=$?
+    if [ "$ret" -eq 1 ]; then
+
+        mkdir -p Cuda9.0
+        cd Cuda9.0 && wget https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.0.176_384.81_linux-run \
+        https://developer.nvidia.com/compute/cuda/9.0/Prod/patches/1/cuda_9.0.176.1_linux-run \
+        https://developer.nvidia.com/compute/cuda/9.0/Prod/patches/2/cuda_9.0.176.2_linux-run \
+        https://developer.nvidia.com/compute/cuda/9.0/Prod/patches/3/cuda_9.0.176.3_linux-run \
+        https://developer.nvidia.com/compute/cuda/9.0/Prod/patches/4/cuda_9.0.176.4_linux-run
+
+        mv cuda_9.0.176_384.81_linux-run cuda_9.0.176_384.81_linux.run
+        mv cuda_9.0.176.1_linux-run      cuda_9.0.176.1_linux.run
+        mv cuda_9.0.176.2_linux-run      cuda_9.0.176.2_linux.run
+        mv cuda_9.0.176.3_linux-run      cuda_9.0.176.3_linux.run
+        mv cuda_9.0.176.4_linux-run      cuda_9.0.176.4_linux.run
+        cd ..
+    fi
+
+    chmod +x Cuda9.0/cuda*
 
     sudo sh Cuda9.0/cuda_9.0.176_384.81_linux.run
     sudo sh Cuda9.0/cuda_9.0.176.1_linux.run
@@ -69,18 +84,19 @@ ret=$?
 if [ "$ret" -eq 1 ]; then
 
     mkdir -p ZED_SDK
-    cd ZED_SDK && wget https://download.stereolabs.com/zedsdk/2.7/ubuntu16_cuda9
-
-    chmod +x ZED_SDK/ZED_SDK_Ubuntu16_CUDA9_v2.7.1.run
-    ./ZED_SDK/ZED_SDK_Ubuntu16_CUDA9_v2.7.1.run
+    cd ZED_SDK && wget -nc https://download.stereolabs.com/zedsdk/2.7/ubuntu16_cuda9
+    cd ..
+    
+    chmod +x ZED_SDK/ubuntu16_cuda9 
+    sh ZED_SDK/ubuntu16_cuda9
 fi
 
-prompt_yn_question "Do you want to install Point Cloud Library? [y/n]"
-ret=$?
-if [ "$ret" -eq 1 ]; then
-    sudo add-apt-repository ppa:v-launchpad-jochen-sprickerhof-de/pcl
-    sudo apt update
-    sudo apt install libpcl1.7 -y
-fi
+#prompt_yn_question "Do you want to install Point Cloud Library? [y/n]"
+#ret=$?
+#if [ "$ret" -eq 1 ]; then
+#    sudo add-apt-repository ppa:v-launchpad-jochen-sprickerhof-de/pcl
+#    sudo apt update
+#    sudo apt install libpcl1.7 -y
+#fi
 
 exit 0
