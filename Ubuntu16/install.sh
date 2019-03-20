@@ -17,8 +17,7 @@ sudo add-apt-repository ppa:graphics-drivers/ppa
 sudo apt update && sudo apt upgrade -y
 
 # DEFAULT OR DEPENDENCIES
-sudo apt install openssh-server wget curl vim tree net-tools cmake git -y
-sudo apt-get update
+sudo apt install openssh-server wget curl vim tree net-tools cmake git cmake-curses-gui pkg-config -y
 
 # prompt_yn_question "Do you want to set DIANA Wallpaper? [y/n]"
 # ret=$?
@@ -35,7 +34,7 @@ if [ "$ret" -eq 1 ]; then
     sudo sh -c 'echo "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main" > /etc/apt/sources.list.d/atom.list'
     sudo apt update
     sudo apt install atom -y
-    apm install -c --version atom-ide-ui atom-clock autosave-onchange language-cmake language-doxygen markdown-writer language-make
+    apm install -c atom-ide-ui atom-clock autosave-onchange language-cmake language-doxygen markdown-writer language-make
 fi
 
 
@@ -86,17 +85,88 @@ if [ "$ret" -eq 1 ]; then
     mkdir -p ZED_SDK
     cd ZED_SDK && wget -nc https://download.stereolabs.com/zedsdk/2.7/ubuntu16_cuda9
     cd ..
-    
-    chmod +x ZED_SDK/ubuntu16_cuda9 
+
+    chmod +x ZED_SDK/ubuntu16_cuda9
     sh ZED_SDK/ubuntu16_cuda9
 fi
 
-#prompt_yn_question "Do you want to install Point Cloud Library? [y/n]"
-#ret=$?
-#if [ "$ret" -eq 1 ]; then
+# OPENCV
+sudo apt-get install libopencv-dev
+prompt_yn_question "Do you want to install OpenCV? [y/n]"
+ret=$?
+if [ "$ret" -eq 1 ]; then
+    mkdir -p OpenCV
+    cd OpenCV
+
+    wget https://github.com/opencv/opencv/archive/4.0.1.zip -O opencv-4.0.1.zip
+    unzip opencv-4.0.1.zip
+
+    git clone https://github.com/opencv/opencv_extra.git
+    git clone https://github.com/opencv/opencv_contrib
+
+
+    mkdir -p build_opencv
+    cd build_opencv
+
+    prompt_yn_question "OpenCV: Do you want to generate Makefile for OpenCV? [y/n]"
+    ret=$?
+    if [ "$ret" -eq 1 ]; then
+        cmake \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DBUILD_PNG=OFF \
+        -DBUILD_TIFF=OFF \
+        -DBUILD_TBB=OFF \
+        -DBUILD_JPEG=OFF \
+        -DBUILD_JASPER=OFF \
+        -DBUILD_ZLIB=OFF \
+        -DBUILD_EXAMPLES=ON \
+        -DBUILD_opencv_java=OFF \
+        -DBUILD_opencv_python2=ON \
+        -DBUILD_opencv_python3=OFF \
+        -DWITH_OPENCL=OFF \
+        -DWITH_OPENMP=OFF \
+        -DWITH_FFMPEG=ON \
+        -DWITH_GSTREAMER=ON \
+        -DWITH_GSTREAMER_0_10=OFF \
+        -DWITH_CUDA=ON \
+        -DWITH_GTK=ON \
+        -DWITH_VTK=OFF \
+        -DWITH_TBB=ON \
+        -DWITH_1394=OFF \
+        -DWITH_OPENEXR=OFF \
+        -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda \
+        -DCUDA_ARCH_BIN='3.0 3.5 5.0 6.0 6.2' \
+        -DCUDA_ARCH_PTX="" \
+        -DINSTALL_C_EXAMPLES=ON \
+        -DINSTALL_TESTS=OFF \
+        -DOPENCV_TEST_DATA_PATH=/home/diana1/opencv_extra/testdata \
+        -DOPENCV_EXTRA_MODULES_PATH=/home/diana1/opencv_contrib/modules \
+        ../opencv
+    fi
+
+    prompt_yn_question "OpenCV: Do you want to run Makefiles for OpenCV? (It may take some time) [y/n]"
+    ret=$?
+    if [ "$ret" -eq 1 ]; then
+        make -j7 VERBOSE=1
+    fi
+    prompt_yn_question "OpenCV: Do you want to install OpenCV? (It make take some time) [y/n]"
+    ret=$?
+    if [ "$ret" -eq 1 ]; then
+        sudo make install
+    fi
+
+    cd ..   # Exit build_opencv
+    cd ..   # Exit OpenCV
+fi
+
+# Point Cloud Library
+# prompt_yn_question "Do you want to install Point Cloud Library? [y/n]"
+# ret=$?
+# if [ "$ret" -eq 1 ]; then
 #    sudo add-apt-repository ppa:v-launchpad-jochen-sprickerhof-de/pcl
 #    sudo apt update
 #    sudo apt install libpcl1.7 -y
-#fi
+# fi
 
 exit 0
